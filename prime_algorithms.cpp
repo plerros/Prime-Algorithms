@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdint.h>
+#include <math.h>
 #include <iostream>
 
-#define MINIMUM 10000000
-#define MAXIMUM 20000000
+#define MINIMUM 0
+#define MAXIMUM 100000000
 
-void print_stats(std::string algorithm, uint64_t counter, clock_t time){
+using namespace std;
+
+void print_stats(string algorithm, uint64_t counter, clock_t time){
 	algorithm += ':';
-	std::cout << algorithm << std::string(16 - algorithm.length(), ' ')<< counter;
+	cout << algorithm << string(16 - algorithm.length(), ' ')<< counter;
 	printf(" primes in %lf\n", ((double)time)/CLOCKS_PER_SEC);
 }
 
@@ -226,10 +229,10 @@ void miller_rabin(uint64_t current, uint64_t range){
 int main(){
 	printf("\nChecking range [%ld,%ld] for primes\n",(uint64_t)MINIMUM, (uint64_t)MAXIMUM);
 
+	cout << string(16, ' ') << (MAXIMUM - MINIMUM) /6  << endl;
 	miller_rabin(MINIMUM, MAXIMUM);
 	atkin(MINIMUM, MAXIMUM);
 	deterministic(MINIMUM, MAXIMUM);
-	
 
 	printf("\n");
 	return 0;
