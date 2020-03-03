@@ -3,9 +3,12 @@
 #include <stdint.h>
 #include <math.h>
 #include <iostream>
+#include <vector>
 
 #define MINIMUM 0
 #define MAXIMUM 100000000
+
+#define pierre_dussart_min 355991
 
 using namespace std;
 
@@ -13,6 +16,17 @@ void print_stats(string algorithm, uint64_t counter, clock_t time){
 	algorithm += ':';
 	cout << algorithm << string(16 - algorithm.length(), ' ')<< counter;
 	printf(" primes in %lf\n", ((double)time)/CLOCKS_PER_SEC);
+}
+
+uint64_t pierre_dussart(uint64_t x){
+	return((x / log(x)) *( 1 + (1/log(x)) + (2.51/(log(x) * log(x)))));
+}
+
+uint64_t prime_estimator(uint64_t i){
+	if(i >= pierre_dussart_min)
+		return(pierre_dussart(i));
+	else
+		return 30456;
 }
 
 void deterministic(uint64_t current, uint64_t range){
@@ -69,20 +83,17 @@ void deterministic(uint64_t current, uint64_t range){
 	print_stats("Deterministic", counter, time);
 }
 
-class node{
-public:
-	const uint64_t prime;
-	struct node* next;
-	node(uint64_t p):prime(p), next(NULL){}
-};
-
 void atkin(uint64_t minimum, uint64_t range){
 	if(minimum > range)
 		return;
 
 	uint64_t current = 0, counter = 0;
-	node *primearray = new node(2);
-	node *last(primearray);
+
+	vector<uint64_t> primearray(prime_estimator(range), 0);
+	primearray[0] = 2;
+
+
+	uint64_t last = 0;
 	clock_t time = clock();
 
 	if(range >= 2){
@@ -97,10 +108,10 @@ void atkin(uint64_t minimum, uint64_t range){
 				exit_flag = true;
 		}
 		while(current < 5 && !exit_flag){
-			for(node* tempnode = primearray;current % tempnode->prime != 0; tempnode = tempnode->next){
-				if(current < tempnode->prime * tempnode->prime){
-					last->next = new node(current);
-					last = last->next;
+			for(int i = 0; i < range - 2 && current % primearray[i] != 0; i++){
+				if(current < primearray[i] * primearray[i]){
+					primearray[last+1] = current;
+					last ++;
 					counter +=  (current >= minimum);
 					break;
 				}
@@ -111,10 +122,10 @@ void atkin(uint64_t minimum, uint64_t range){
 				exit_flag = true;
 		}
 		while(current < minimum && !exit_flag){
-			for(node* tempnode = primearray;current % tempnode->prime != 0; tempnode = tempnode->next){
-				if(current < tempnode->prime * tempnode->prime){
-					(last)->next = new node(current);
-					last = (last)->next;
+			for(int i = 0; i < range - 2 && current % primearray[i] != 0; i++){
+				if(current < primearray[i] * primearray[i]){
+					primearray[last+1] = current;
+					last ++;
 					break;
 				}
 			}
@@ -130,11 +141,11 @@ void atkin(uint64_t minimum, uint64_t range){
 				exit_flag = true;
 		}
 		while(!exit_flag){
-			for(node* tempnode = primearray;current % tempnode->prime != 0; tempnode = tempnode->next){
-				if(current < tempnode->prime * tempnode->prime){
-					(last)->next = new node(current);
-					last = (last)->next;
-					counter++;
+			for(uint64_t i = 0;current % primearray[i] != 0; i++){
+				if(current < (primearray[i] * primearray[i])){
+					primearray[last+1] = current;
+					last ++;
+					counter ++;
 					break;
 				}
 			}
@@ -146,12 +157,6 @@ void atkin(uint64_t minimum, uint64_t range){
 	}
 	time = clock() - time;
 	print_stats("Sieve of Atkin", counter, time);
-	for(struct node *tempnode; primearray != last;){
-		tempnode = primearray;
-		primearray = primearray->next;
-		delete tempnode;
-	}
-	delete primearray;
 }
 
 uint64_t modulo(uint64_t p, uint64_t k, uint64_t m){
@@ -229,7 +234,7 @@ void miller_rabin(uint64_t current, uint64_t range){
 int main(){
 	printf("\nChecking range [%ld,%ld] for primes\n",(uint64_t)MINIMUM, (uint64_t)MAXIMUM);
 
-	cout << string(16, ' ') << (MAXIMUM - MINIMUM) /6  << endl;
+	cout << string(16, ' ') << prime_estimator(MAXIMUM)  << endl;
 	miller_rabin(MINIMUM, MAXIMUM);
 	atkin(MINIMUM, MAXIMUM);
 	deterministic(MINIMUM, MAXIMUM);
