@@ -41,7 +41,7 @@ void deterministic(uint64_t current, uint64_t range){
 			counter++;
 			current++;
 		}
-		for(;current < 5 && current <= range; current++)
+		for(;current <= 3 && current <= range; current++)
 			for(i = 2; current % i != 0; i++)
 				if(i*i > current){
 					counter++;
@@ -78,7 +78,7 @@ void sieve_of_atkin(uint64_t minimum, uint64_t range){
 			if(current <= range)
 				current++;
 		}
-		for(;current < 5 && current <= range; current++)
+		for(;current <= 3 && current <= range; current++)
 			for(i = 0;current % prime_vector[i] != 0; i++)
 				if(current < prime_vector[i] * prime_vector[i]){
 					prime_vector[last+1] = current;
@@ -142,7 +142,7 @@ void miller_rabin(uint64_t current, uint64_t range){
 			if(current <= range)
 				current++;
 		}
-		for(; current < 5 && current <= range; current++)
+		for(; current <= 3 && current <= range; current++)
 			for(uint32_t i = 2; current % i != 0; i++)
 				if(i*i > current){
 					counter++;
