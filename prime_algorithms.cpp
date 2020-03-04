@@ -5,9 +5,6 @@
 #include <iostream>
 #include <vector>
 
-#define MINIMUM 0
-#define MAXIMUM 100000000
-
 #define pierre_dussart_min 355991
 
 using namespace std;
@@ -26,7 +23,7 @@ uint64_t prime_estimator(uint64_t i){
 	if(i >= pierre_dussart_min)
 		return(pierre_dussart(i));
 	else
-		return 30456;
+		return (i/2 + 1);
 }
 
 void deterministic(uint64_t current, uint64_t range){
@@ -89,8 +86,8 @@ void atkin(uint64_t minimum, uint64_t range){
 
 	uint64_t current = 0, counter = 0;
 
-	vector<uint64_t> primearray(prime_estimator(range), 0);
-	primearray[0] = 2;
+	vector<uint64_t> prime_vector(prime_estimator(range), 0);
+	prime_vector[0] = 2;
 
 
 	uint64_t last = 0;
@@ -98,6 +95,8 @@ void atkin(uint64_t minimum, uint64_t range){
 
 	if(range >= 2){
 		bool exit_flag = false;
+		int i;
+		//vector<uint64_t>::iterator it;
 		if(current <= 2 && !exit_flag){
 			current = 2;
 			if(minimum <= 2)
@@ -108,9 +107,9 @@ void atkin(uint64_t minimum, uint64_t range){
 				exit_flag = true;
 		}
 		while(current < 5 && !exit_flag){
-			for(int i = 0; i < range - 2 && current % primearray[i] != 0; i++){
-				if(current < primearray[i] * primearray[i]){
-					primearray[last+1] = current;
+			for(i = 0;current % prime_vector[i] != 0; i++){
+				if(current < prime_vector[i] * prime_vector[i]){
+					prime_vector[last+1] = current;
 					last ++;
 					counter +=  (current >= minimum);
 					break;
@@ -122,9 +121,9 @@ void atkin(uint64_t minimum, uint64_t range){
 				exit_flag = true;
 		}
 		while(current < minimum && !exit_flag){
-			for(int i = 0; i < range - 2 && current % primearray[i] != 0; i++){
-				if(current < primearray[i] * primearray[i]){
-					primearray[last+1] = current;
+			for(i = 0;current % prime_vector[i] != 0; i++){
+				if(current < prime_vector[i] * prime_vector[i]){
+					prime_vector[last+1] = current;
 					last ++;
 					break;
 				}
@@ -141,9 +140,9 @@ void atkin(uint64_t minimum, uint64_t range){
 				exit_flag = true;
 		}
 		while(!exit_flag){
-			for(uint64_t i = 0;current % primearray[i] != 0; i++){
-				if(current < (primearray[i] * primearray[i])){
-					primearray[last+1] = current;
+			for(i = 0; current % prime_vector[i] != 0; i++){
+				if(current < (prime_vector[i] * prime_vector[i])){
+					prime_vector[last+1] = current;
 					last ++;
 					counter ++;
 					break;
@@ -231,13 +230,27 @@ void miller_rabin(uint64_t current, uint64_t range){
 	print_stats("Miller-Rabin", counter, time);
 }
 
-int main(){
-	printf("\nChecking range [%ld,%ld] for primes\n",(uint64_t)MINIMUM, (uint64_t)MAXIMUM);
+int main(int argc, char *argv[]){
+	switch(argc){
+		case 3:
+			cout << "3" << endl;
+		case 2:
+			cout << "2" << endl;
+		case 1:
+			cout << "1" << endl;
 
-	cout << string(16, ' ') << prime_estimator(MAXIMUM)  << endl;
-	miller_rabin(MINIMUM, MAXIMUM);
-	atkin(MINIMUM, MAXIMUM);
-	deterministic(MINIMUM, MAXIMUM);
+		default:
+			cout << "error" << endl;
+
+	}
+	uint64_t min = atoi(argv[1]);
+	uint64_t max = atoi(argv[2]);
+	printf("\nChecking range [%ld,%ld] for primes\n", min, max);
+
+	cout << string(16, ' ') << prime_estimator(max)  << endl;
+	miller_rabin(min, max);
+	atkin(min, max);
+	deterministic(min, max);
 
 	printf("\n");
 	return 0;
