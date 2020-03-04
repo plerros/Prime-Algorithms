@@ -28,23 +28,19 @@ uint64_t prime_estimator(uint64_t i){
 }
 
 void deterministic(uint64_t current, uint64_t range){
-	if(current > range)
-		return;
-	if(range >= -2)
+	if(current > range || range >= -2)
 		return;
 
 	uint64_t counter = 0;
 	clock_t time = clock();
 
 	if(range >= 2){
-		//preperation
+		uint32_t i;
 		if(current <= 2){
 			current = 2;
 			counter++;
-			if(current <= range)
-				current++;
+			current++;
 		}
-		uint32_t i;
 		for(;current < 5 && current <= range; current++)
 			for(i = 2; current % i != 0; i++)
 				if(i*i > current){
@@ -53,8 +49,7 @@ void deterministic(uint64_t current, uint64_t range){
 				}
 		if(current % 2 == 0 && current <= range)
 				current++;
-		//deterministic algorithm
-		for(;current +1 < range; current += 2)
+		for(;current <= range; current += 2)
 			for(i = 3; current % i != 0; i += 2)
 				if(i*i > current){
 					counter++;
@@ -66,32 +61,22 @@ void deterministic(uint64_t current, uint64_t range){
 }
 
 void sieve_of_atkin(uint64_t minimum, uint64_t range){
-	if(minimum > range)
-		return;
-	if(range >= -2)
+	if(minimum > range || range >= -2)
 		return;
 
-	uint64_t current = 0, counter = 0;
-
+	uint64_t current = 0, counter = 0, last = 0;
 	vector<uint64_t> prime_vector(prime_estimator(range), 0);
 	prime_vector[0] = 2;
 
-
-	uint64_t last = 0;
 	clock_t time = clock();
-
 	if(range >= 2){
-		bool exit_flag = false;
 		uint32_t i;
-		//vector<uint64_t>::iterator it;
-		if(current <= 2 && !exit_flag){
+		if(current <= 2){
 			current = 2;
 			if(minimum <= 2)
 				counter++;
 			if(current <= range)
 				current++;
-			else
-				exit_flag = true;
 		}
 		for(;current < 5 && current <= range; current++)
 			for(i = 0;current % prime_vector[i] != 0; i++)
@@ -101,7 +86,7 @@ void sieve_of_atkin(uint64_t minimum, uint64_t range){
 					counter +=  (current >= minimum);
 					break;
 				}
-		for(;current < minimum;)
+		for(;current < minimum;current++)
 			for(i = 0;current % prime_vector[i] != 0; i++)
 				if(current < prime_vector[i] * prime_vector[i]){
 					prime_vector[last+1] = current;
@@ -110,7 +95,7 @@ void sieve_of_atkin(uint64_t minimum, uint64_t range){
 				}
 		if(current % 2 == 0 && current <= range)
 			current++;
-		for(; current+1 < range; current += 2)
+		for(; current <= range; current += 2)
 			for(i = 0; current % prime_vector[i] != 0; i++)
 				if(current < (prime_vector[i] * prime_vector[i])){
 					prime_vector[last+1] = current;
@@ -145,14 +130,10 @@ uint64_t ml_calc(uint8_t a, uint64_t r,uint64_t d,uint64_t current){
 }
 
 void miller_rabin(uint64_t current, uint64_t range){
-	if(current > range)
-		return;
-	if(range > miller_rabin_max)
+	if(current > range || range > miller_rabin_max)
 		return;
 
-	uint64_t counter = 0;
-	uint64_t r, d;
-
+	uint64_t counter = 0, r, d;
 	clock_t time = clock();
 	if(range >= 2){
 		if(current <= 2){
@@ -167,9 +148,8 @@ void miller_rabin(uint64_t current, uint64_t range){
 					counter++;
 					break;
 				}
-		if(current % 2 == 0 && current <= range){
+		if(current % 2 == 0 && current <= range)
 			current++;
-		}
 		for(; current <= range; current += 2){
 			if(current == 7 || current == 61){
 				counter++;
@@ -191,8 +171,8 @@ int main(int argc, char *argv[]){
 	else{
 		uint64_t min = atoi(argv[1]);
 		uint64_t max = atoi(argv[2]);
-		cout << "\nChecking range [" << min << ", " << max << "]" << endl;
-		cout << string(16, ' ') << prime_estimator(max)  << endl;
+		cout << "Checking range [" << min << ", " << max << "]" << endl;
+		cout << "Prime estimation: " << prime_estimator(max) << endl;
 		miller_rabin(min, max);
 		sieve_of_atkin(min, max);
 		deterministic(min, max);
