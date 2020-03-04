@@ -1,5 +1,4 @@
-# Prime-Algorithms
-Primality test with 3 algorithms:
+# Primality Tests:
 * Miller - Rabin
 * Sieve of Atkin
 * Deterministic
